@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/intake_provider.dart';
 import '../widgets/intake_card.dart';
+import '../widgets/progress_chart.dart';
 import '../screens/log_entry_screen.dart';
 import '../screens/history_screen.dart';
 import '../screens/settings_screen.dart';
@@ -33,6 +34,7 @@ class HomeScreen extends StatelessWidget {
           IntakeCard(total: todayTotal, goal: goal),
           LinearProgressIndicator(value: percent),
           const SizedBox(height: 20),
+          const ProgressChart(),
           ElevatedButton(
               onPressed: () => Navigator.push(
                   context,
