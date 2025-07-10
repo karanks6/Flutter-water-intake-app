@@ -24,114 +24,124 @@ class _LogEntryScreenState extends State<LogEntryScreen> {
     super.initState();
     if (widget.entry != null) {
       _amountController.text = widget.entry!.amount.toString();
-      _noteController.text = widget.entry!.note ?? '';
+      _noteController.text = widget.entry!.note;
       _selectedDate = widget.entry!.timestamp;
       _selectedTime = TimeOfDay.fromDateTime(widget.entry!.timestamp);
     }
   }
 
   @override
+  void dispose() {
+    _amountController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isEditing = widget.entry != null;
-    
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Entry' : 'Log Water Intake'),
-        actions: isEditing
-            ? [
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: _deleteEntry,
-                ),
-              ]
-            : null,
+        title: Text(widget.entry == null ? 'Log Water Intake' : 'Edit Entry'),
+        backgroundColor: Colors.blue[600],
+        foregroundColor: Colors.white,
       ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Amount Input
               TextFormField(
                 controller: _amountController,
+                keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Amount (ml)',
                   border: OutlineInputBorder(),
-                  suffixText: 'ml',
+                  prefixIcon: Icon(Icons.water_drop),
                 ),
-                keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter amount';
+                    return 'Please enter an amount';
                   }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter valid number';
+                  final amount = double.tryParse(value);
+                  if (amount == null || amount <= 0) {
+                    return 'Please enter a valid amount';
                   }
                   return null;
                 },
               ),
+              
               SizedBox(height: 16),
-              TextFormField(
-                controller: _noteController,
-                decoration: InputDecoration(
-                  labelText: 'Note (optional)',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 2,
-              ),
-              SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: _selectDate,
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: 'Date',
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Text(
-                          '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: InkWell(
-                      onTap: _selectTime,
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: 'Time',
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Text(_selectedTime.format(context)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
+              
+              // Quick Amount Buttons
               Text(
-                'Quick Add',
+                'Quick Amounts',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 children: [
-                  _buildQuickAddChip(250, 'Glass'),
-                  _buildQuickAddChip(500, 'Bottle'),
-                  _buildQuickAddChip(1000, 'Large Bottle'),
+                  _buildQuickAmountChip(250),
+                  _buildQuickAmountChip(500),
+                  _buildQuickAmountChip(750),
+                  _buildQuickAmountChip(1000),
                 ],
               ),
-              Spacer(),
+              
+              SizedBox(height: 16),
+              
+              // Date Selection
+              ListTile(
+                title: Text('Date'),
+                subtitle: Text(
+                  '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                ),
+                leading: Icon(Icons.calendar_today),
+                onTap: _selectDate,
+                contentPadding: EdgeInsets.zero,
+              ),
+              
+              // Time Selection
+              ListTile(
+                title: Text('Time'),
+                subtitle: Text(_selectedTime.format(context)),
+                leading: Icon(Icons.access_time),
+                onTap: _selectTime,
+                contentPadding: EdgeInsets.zero,
+              ),
+              
+              SizedBox(height: 16),
+              
+              // Note Input
+              TextFormField(
+                controller: _noteController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: 'Note (optional)',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.note),
+                ),
+              ),
+              
+              SizedBox(height: 24),
+              
+              // Save Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _saveEntry,
-                  child: Text(isEditing ? 'Update Entry' : 'Save Entry'),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.blue[600],
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    widget.entry == null ? 'Save Entry' : 'Update Entry',
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
               ),
             ],
@@ -141,40 +151,45 @@ class _LogEntryScreenState extends State<LogEntryScreen> {
     );
   }
 
-  Widget _buildQuickAddChip(double amount, String label) {
+  Widget _buildQuickAmountChip(double amount) {
     return ActionChip(
-      label: Text('$label (${amount.toInt()}ml)'),
+      label: Text('${amount.toStringAsFixed(0)} ml'),
       onPressed: () {
         _amountController.text = amount.toString();
       },
     );
   }
 
-  Future<void> _selectDate() async {
-    final date = await showDatePicker(
+  void _selectDate() async {
+    final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(2020),
+      firstDate: DateTime.now().subtract(Duration(days: 365)),
       lastDate: DateTime.now(),
     );
-    if (date != null) {
-      setState(() => _selectedDate = date);
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
     }
   }
 
-  Future<void> _selectTime() async {
-    final time = await showTimePicker(
+  void _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: _selectedTime,
     );
-    if (time != null) {
-      setState(() => _selectedTime = time);
+    if (picked != null && picked != _selectedTime) {
+      setState(() {
+        _selectedTime = picked;
+      });
     }
   }
 
   void _saveEntry() {
     if (_formKey.currentState!.validate()) {
-      final provider = Provider.of<IntakeProvider>(context, listen: false);
+      final amount = double.parse(_amountController.text);
+      final note = _noteController.text;
       final timestamp = DateTime(
         _selectedDate.year,
         _selectedDate.month,
@@ -183,45 +198,25 @@ class _LogEntryScreenState extends State<LogEntryScreen> {
         _selectedTime.minute,
       );
 
-      final entry = IntakeEntry(
-        id: widget.entry?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        timestamp: timestamp,
-        amount: double.parse(_amountController.text),
-        note: _noteController.text.isEmpty ? null : _noteController.text,
-      );
-
-      if (widget.entry != null) {
-        provider.updateEntry(entry);
+      if (widget.entry == null) {
+        // Add new entry
+        Provider.of<IntakeProvider>(context, listen: false)
+            .addEntry(amount, note, timestamp);
       } else {
-        provider.addEntry(entry);
+        // Update existing entry
+        Provider.of<IntakeProvider>(context, listen: false)
+            .updateEntry(widget.entry!.id, amount, note, timestamp);
       }
 
       Navigator.pop(context);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.entry == null 
+              ? 'Entry saved successfully' 
+              : 'Entry updated successfully'),
+        ),
+      );
     }
-  }
-
-  void _deleteEntry() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Delete Entry'),
-        content: Text('Are you sure you want to delete this entry?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              final provider = Provider.of<IntakeProvider>(context, listen: false);
-              provider.deleteEntry(widget.entry!.id);
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: Text('Delete'),
-          ),
-        ],
-      ),
-    );
   }
 }

@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:water_intake_logger/providers/intake_provider.dart';
-import 'package:water_intake_logger/screens/home_screen.dart';
-import 'package:water_intake_logger/services/notification_service.dart';
+import 'screens/home_screen.dart';
+import 'providers/intake_provider.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await NotificationService().init(); // Initialize notification service
-  runApp(const MyApp());
+void main() {
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -20,10 +15,11 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Water Intake Logger',
         theme: ThemeData(
-          primarySwatch: Colors.blueGrey,
+          primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: const HomeScreen(),
+        home: HomeScreen(),
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

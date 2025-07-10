@@ -1,51 +1,64 @@
+import 'package:uuid/uuid.dart';
+
 class IntakeEntry {
   final String id;
-  final DateTime timestamp;
   final double amount;
-  final String unit;
-  final String? note;
+  final DateTime timestamp;
+  final String note;
 
   IntakeEntry({
-    required this.id,
-    required this.timestamp,
+    String? id,
     required this.amount,
-    this.unit = 'ml',
-    this.note,
-  });
+    required this.timestamp,
+    this.note = '',
+  }) : id = id ?? Uuid().v4();
 
-  Map<String, dynamic> toJson() {
+  // Convert to Map for storage
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'timestamp': timestamp.millisecondsSinceEpoch,
       'amount': amount,
-      'unit': unit,
+      'timestamp': timestamp.millisecondsSinceEpoch,
       'note': note,
     };
   }
 
-  factory IntakeEntry.fromJson(Map<String, dynamic> json) {
+  // Create from Map
+  factory IntakeEntry.fromMap(Map<String, dynamic> map) {
     return IntakeEntry(
-      id: json['id'],
-      timestamp: DateTime.fromMillisecondsSinceEpoch(json['timestamp']),
-      amount: json['amount'].toDouble(),
-      unit: json['unit'] ?? 'ml',
-      note: json['note'],
+      id: map['id'],
+      amount: map['amount']?.toDouble() ?? 0.0,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(map['timestamp']),
+      note: map['note'] ?? '',
     );
   }
 
+  // Create copy with modifications
   IntakeEntry copyWith({
     String? id,
-    DateTime? timestamp,
     double? amount,
-    String? unit,
+    DateTime? timestamp,
     String? note,
   }) {
     return IntakeEntry(
       id: id ?? this.id,
-      timestamp: timestamp ?? this.timestamp,
       amount: amount ?? this.amount,
-      unit: unit ?? this.unit,
+      timestamp: timestamp ?? this.timestamp,
       note: note ?? this.note,
     );
   }
+
+  @override
+  String toString() {
+    return 'IntakeEntry(id: $id, amount: $amount, timestamp: $timestamp, note: $note)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is IntakeEntry && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
