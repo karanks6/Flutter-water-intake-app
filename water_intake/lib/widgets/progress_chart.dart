@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/intake_provider.dart';
 
 class ProgressChart extends StatelessWidget {
+  const ProgressChart({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Consumer<IntakeProvider>(

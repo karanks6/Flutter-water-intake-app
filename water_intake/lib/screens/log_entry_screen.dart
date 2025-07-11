@@ -6,7 +6,7 @@ import '../models/intake_entry.dart';
 class LogEntryScreen extends StatefulWidget {
   final IntakeEntry? entry;
 
-  LogEntryScreen({this.entry});
+  const LogEntryScreen({super.key, this.entry});
 
   @override
   _LogEntryScreenState createState() => _LogEntryScreenState();

@@ -7,11 +7,11 @@ class IntakeCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   const IntakeCard({
-    Key? key,
+    super.key,
     required this.entry,
     required this.onEdit,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

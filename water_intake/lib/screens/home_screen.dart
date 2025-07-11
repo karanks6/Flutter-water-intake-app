@@ -8,6 +8,8 @@ import 'history_screen.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,7 +125,7 @@ class HomeScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 SizedBox(height: 8),
-                Container(
+                SizedBox(
                   height: 200,
                   child: ProgressChart(),
                 ),
@@ -174,8 +176,8 @@ class HomeScreen extends StatelessWidget {
             MaterialPageRoute(builder: (context) => LogEntryScreen()),
           );
         },
-        child: Icon(Icons.add),
         backgroundColor: Colors.blue[600],
+        child: Icon(Icons.add),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [

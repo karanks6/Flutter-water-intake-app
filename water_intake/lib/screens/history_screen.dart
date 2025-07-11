@@ -5,6 +5,8 @@ import '../widgets/intake_card.dart';
 import 'log_entry_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
+
   @override
   _HistoryScreenState createState() => _HistoryScreenState();
 }
