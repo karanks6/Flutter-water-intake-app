@@ -110,7 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   enabled: _notificationsEnabled,
                 ),
                 
-                SizedBox(height: 24),
+                SizedBox(height: 5),
                 
                 // App Info
                 Text(
