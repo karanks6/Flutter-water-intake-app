@@ -8,8 +8,6 @@ import 'history_screen.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,19 +123,19 @@ class HomeScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 SizedBox(height: 8),
-                SizedBox(
-                  height: 200,
+                Container(
+                  height: 360,
                   child: ProgressChart(),
                 ),
                 
-                SizedBox(height: 16),
+                SizedBox(height: 26),
                 
                 // Recent Entries
                 Text(
                   'Recent Entries',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                SizedBox(height: 8),
+                SizedBox(height: 28),
                 ListView.builder(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
@@ -176,8 +174,8 @@ class HomeScreen extends StatelessWidget {
             MaterialPageRoute(builder: (context) => LogEntryScreen()),
           );
         },
-        backgroundColor: Colors.blue[600],
         child: Icon(Icons.add),
+        backgroundColor: Colors.blue[600],
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
