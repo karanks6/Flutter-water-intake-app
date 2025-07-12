@@ -105,7 +105,7 @@ class ProgressChart extends StatelessWidget {
                                               height: topLabelHeight,
                                               alignment: Alignment.center,
                                               child: Text(
-                                                '${intake.toStringAsFixed(0)}',
+                                                intake.toStringAsFixed(0),
                                                 style: TextStyle(
                                                   fontSize: 9,
                                                   fontWeight: FontWeight.bold,
@@ -171,7 +171,7 @@ class ProgressChart extends StatelessWidget {
                               SizedBox(height: 8),
 
                               // Legend - contained within the chart container
-                              Container(
+                              SizedBox(
                                 height: legendHeight,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
