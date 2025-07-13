@@ -3,3 +3,4 @@ Water intake remainder app<br> Water Intake Logger is your personal hydration as
 <br>
 # Key Features:
 <ls> Log Water Intake: Easily record how much water you drink throughout the day.
+Log Water Intake: Easily record how much water you drink throughout the day.
