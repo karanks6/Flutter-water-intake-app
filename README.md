@@ -2,4 +2,4 @@
 Water intake remainder app<br> Water Intake Logger is your personal hydration assistant. This app helps you develop healthy drinking habits by letting you track daily water consumption, set hydration goals, and monitor your progress over time with insightful charts and reminders.<br>
 <br>
 # Key Features:
-
+<ls> Log Water Intake: Easily record how much water you drink throughout the day.
