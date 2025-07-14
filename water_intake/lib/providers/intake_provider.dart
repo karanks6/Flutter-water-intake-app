@@ -13,6 +13,10 @@ class IntakeProvider with ChangeNotifier {
   int _reminderInterval = 2; // hours
   bool _goalAchievedToday = false;
   
+  // Add these new properties for minutes support
+  int _reminderStartMinute = 0;
+  int _reminderEndMinute = 0;
+  
   final NotificationService _notificationService = NotificationService();
 
   // Getters
@@ -22,6 +26,128 @@ class IntakeProvider with ChangeNotifier {
   int get reminderStartHour => _reminderStartHour;
   int get reminderEndHour => _reminderEndHour;
   int get reminderInterval => _reminderInterval;
+  int get reminderStartMinute => _reminderStartMinute;
+  int get reminderEndMinute => _reminderEndMinute;
+
+  // Update notification settings
+  Future<void> updateNotificationSettings({
+    bool? enabled,
+    int? startHour,
+    int? startMinute,
+    int? endHour,
+    int? endMinute,
+    int? interval,
+  }) async {
+    if (enabled != null) _notificationsEnabled = enabled;
+    if (startHour != null) _reminderStartHour = startHour;
+    if (startMinute != null) _reminderStartMinute = startMinute;
+    if (endHour != null) _reminderEndHour = endHour;
+    if (endMinute != null) _reminderEndMinute = endMinute;
+    if (interval != null) _reminderInterval = interval;
+    
+    await _saveData();
+    await _setupReminders();
+    notifyListeners();
+  }
+
+  // Method to calculate current streak correctly
+  int calculateCurrentStreak() {
+    if (_entries.isEmpty) return 0;
+    
+    final now = DateTime.now();
+    int streak = 0;
+    
+    // Check consecutive days starting from today
+    for (int i = 0; i < 365; i++) {
+      final date = now.subtract(Duration(days: i));
+      final intake = getDailyIntake(date);
+      
+      if (intake >= _dailyTarget) {
+        streak++;
+      } else {
+        // If it's today and no intake yet, don't break the streak
+        if (i == 0 && intake == 0) {
+          continue;
+        }
+        break;
+      }
+    }
+    
+    return streak;
+  }
+
+  // Get statistics with corrected streak calculation
+  Map<String, dynamic> getStatistics() {
+    if (_entries.isEmpty) {
+      return {
+        'totalDays': 0,
+        'totalIntake': 0.0,
+        'averageDaily': 0.0,
+        'bestDay': 0.0,
+        'streak': 0,
+        'goalsAchieved': 0,
+        'totalEntries': 0,
+      };
+    }
+
+    final sortedEntries = List<IntakeEntry>.from(_entries)
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    final firstEntry = sortedEntries.first;
+    final lastEntry = sortedEntries.last;
+    final totalDays = lastEntry.timestamp.difference(firstEntry.timestamp).inDays + 1;
+    final totalIntake = _entries.fold(0.0, (sum, entry) => sum + entry.amount);
+
+    // Calculate best day
+    final dailyIntakes = <String, double>{};
+    for (final entry in _entries) {
+      final dateKey = '${entry.timestamp.year}-${entry.timestamp.month}-${entry.timestamp.day}';
+      dailyIntakes[dateKey] = (dailyIntakes[dateKey] ?? 0.0) + entry.amount;
+    }
+    final bestDay = dailyIntakes.values.isNotEmpty 
+        ? dailyIntakes.values.reduce((a, b) => a > b ? a : b) 
+        : 0.0;
+
+    // Use the corrected streak calculation
+    int streak = calculateCurrentStreak();
+
+    // Calculate goals achieved
+    int goalsAchieved = 0;
+    for (final dateKey in dailyIntakes.keys) {
+      if (dailyIntakes[dateKey]! >= _dailyTarget) {
+        goalsAchieved++;
+      }
+    }
+
+    return {
+      'totalDays': totalDays,
+      'totalIntake': totalIntake,
+      'averageDaily': totalIntake / totalDays,
+      'bestDay': bestDay,
+      'streak': streak,
+      'goalsAchieved': goalsAchieved,
+      'totalEntries': _entries.length,
+    };
+  }
+
+  // Set up reminders based on current settings
+  Future<void> _setupReminders() async {
+    if (!_notificationsEnabled) {
+      await _notificationService.cancelAllReminders();
+      return;
+    }
+
+    // Create reminder times based on interval
+    List<Map<String, int>> reminderTimes = [];
+    for (int hour = _reminderStartHour; hour <= _reminderEndHour; hour += _reminderInterval) {
+      reminderTimes.add({
+        'hour': hour, 
+        'minute': hour == _reminderStartHour ? _reminderStartMinute : 0
+      });
+    }
+
+    await _notificationService.scheduleMultipleReminders(reminderTimes);
+  }
 
   // Get today's entries
   List<IntakeEntry> get todayEntries {
@@ -171,39 +297,6 @@ class IntakeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Update notification settings
-  Future<void> updateNotificationSettings({
-    bool? enabled,
-    int? startHour,
-    int? endHour,
-    int? interval,
-  }) async {
-    if (enabled != null) _notificationsEnabled = enabled;
-    if (startHour != null) _reminderStartHour = startHour;
-    if (endHour != null) _reminderEndHour = endHour;
-    if (interval != null) _reminderInterval = interval;
-    
-    await _saveData();
-    await _setupReminders();
-    notifyListeners();
-  }
-
-  // Set up reminders based on current settings
-  Future<void> _setupReminders() async {
-    if (!_notificationsEnabled) {
-      await _notificationService.cancelAllReminders();
-      return;
-    }
-
-    // Create reminder times based on interval
-    List<Map<String, int>> reminderTimes = [];
-    for (int hour = _reminderStartHour; hour <= _reminderEndHour; hour += _reminderInterval) {
-      reminderTimes.add({'hour': hour, 'minute': 0});
-    }
-
-    await _notificationService.scheduleMultipleReminders(reminderTimes);
-  }
-
   // Test notification
   Future<void> testNotification() async {
     await _notificationService.testNotification();
@@ -225,70 +318,6 @@ class IntakeProvider with ChangeNotifier {
   // Reset daily goal achieved flag (call this at start of new day)
   void resetDailyFlags() {
     _goalAchievedToday = false;
-  }
-
-  // Get statistics
-  Map<String, dynamic> getStatistics() {
-    if (_entries.isEmpty) {
-      return {
-        'totalDays': 0,
-        'totalIntake': 0.0,
-        'averageDaily': 0.0,
-        'bestDay': 0.0,
-        'streak': 0,
-        'goalsAchieved': 0,
-        'totalEntries': 0,
-      };
-    }
-
-    final sortedEntries = List<IntakeEntry>.from(_entries)
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
-    final firstEntry = sortedEntries.first;
-    final lastEntry = sortedEntries.last;
-    final totalDays = lastEntry.timestamp.difference(firstEntry.timestamp).inDays + 1;
-    final totalIntake = _entries.fold(0.0, (sum, entry) => sum + entry.amount);
-
-    // Calculate best day
-    final dailyIntakes = <String, double>{};
-    for (final entry in _entries) {
-      final dateKey = '${entry.timestamp.year}-${entry.timestamp.month}-${entry.timestamp.day}';
-      dailyIntakes[dateKey] = (dailyIntakes[dateKey] ?? 0.0) + entry.amount;
-    }
-    final bestDay = dailyIntakes.values.isNotEmpty 
-        ? dailyIntakes.values.reduce((a, b) => a > b ? a : b) 
-        : 0.0;
-
-    // Calculate streak
-    int streak = 0;
-    final now = DateTime.now();
-    for (int i = 0; i < 365; i++) {
-      final date = now.subtract(Duration(days: i));
-      final intake = getDailyIntake(date);
-      if (intake >= _dailyTarget) {
-        streak++;
-      } else {
-        break;
-      }
-    }
-
-    // Calculate goals achieved
-    int goalsAchieved = 0;
-    for (final dateKey in dailyIntakes.keys) {
-      if (dailyIntakes[dateKey]! >= _dailyTarget) {
-        goalsAchieved++;
-      }
-    }
-
-    return {
-      'totalDays': totalDays,
-      'totalIntake': totalIntake,
-      'averageDaily': totalIntake / totalDays,
-      'bestDay': bestDay,
-      'streak': streak,
-      'goalsAchieved': goalsAchieved,
-      'totalEntries': _entries.length,
-    };
   }
 
   // Private helper methods
@@ -320,7 +349,9 @@ class IntakeProvider with ChangeNotifier {
       // Save notification settings
       await prefs.setBool('notifications_enabled', _notificationsEnabled);
       await prefs.setInt('reminder_start_hour', _reminderStartHour);
+      await prefs.setInt('reminder_start_minute', _reminderStartMinute);
       await prefs.setInt('reminder_end_hour', _reminderEndHour);
+      await prefs.setInt('reminder_end_minute', _reminderEndMinute);
       await prefs.setInt('reminder_interval', _reminderInterval);
       
       // Save daily flags
@@ -353,7 +384,9 @@ class IntakeProvider with ChangeNotifier {
       // Load notification settings
       _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
       _reminderStartHour = prefs.getInt('reminder_start_hour') ?? 8;
+      _reminderStartMinute = prefs.getInt('reminder_start_minute') ?? 0;
       _reminderEndHour = prefs.getInt('reminder_end_hour') ?? 22;
+      _reminderEndMinute = prefs.getInt('reminder_end_minute') ?? 0;
       _reminderInterval = prefs.getInt('reminder_interval') ?? 2;
       
       // Load daily flags and check if it's a new day
