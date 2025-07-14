@@ -7,11 +7,21 @@ import '../services/notification_service.dart';
 class IntakeProvider with ChangeNotifier {
   List<IntakeEntry> _entries = [];
   double _dailyTarget = 2000.0; // Default 2L
+  bool _notificationsEnabled = true;
+  int _reminderStartHour = 8;
+  int _reminderEndHour = 22;
+  int _reminderInterval = 2; // hours
+  bool _goalAchievedToday = false;
+  
   final NotificationService _notificationService = NotificationService();
 
   // Getters
   List<IntakeEntry> get entries => _entries;
   double get dailyTarget => _dailyTarget;
+  bool get notificationsEnabled => _notificationsEnabled;
+  int get reminderStartHour => _reminderStartHour;
+  int get reminderEndHour => _reminderEndHour;
+  int get reminderInterval => _reminderInterval;
 
   // Get today's entries
   List<IntakeEntry> get todayEntries {
@@ -34,20 +44,39 @@ class IntakeProvider with ChangeNotifier {
     return (todayIntake / _dailyTarget).clamp(0.0, 1.0);
   }
 
+  // Check if goal is achieved
+  bool get isGoalAchieved => todayIntake >= _dailyTarget;
+
   // Initialize provider
   Future<void> initialize() async {
-    await _loadData();
-    await _notificationService.initialize();
+    try {
+      await _loadData();
+      await _notificationService.initialize();
+      await _setupReminders();
+      print('IntakeProvider initialized successfully');
+    } catch (e) {
+      print('Error initializing IntakeProvider: $e');
+    }
   }
 
   // Add new entry
   void addEntry(double amount, String note, DateTime timestamp) {
+    final previousIntake = todayIntake;
+    final wasGoalAchieved = isGoalAchieved;
+    
     final entry = IntakeEntry(
       amount: amount,
       timestamp: timestamp,
       note: note,
     );
     _entries.add(entry);
+    
+    // Check if goal was just achieved
+    if (!wasGoalAchieved && isGoalAchieved && !_goalAchievedToday) {
+      _goalAchievedToday = true;
+      _notificationService.showGoalAchievedNotification(todayIntake, _dailyTarget);
+    }
+    
     _saveData();
     notifyListeners();
   }
@@ -108,6 +137,7 @@ class IntakeProvider with ChangeNotifier {
         'day': _getDayName(date.weekday),
         'intake': intake,
         'date': date,
+        'progress': (intake / _dailyTarget).clamp(0.0, 1.0),
       });
     }
     
@@ -127,6 +157,7 @@ class IntakeProvider with ChangeNotifier {
         'day': date.day,
         'intake': intake,
         'date': date,
+        'progress': (intake / _dailyTarget).clamp(0.0, 1.0),
       });
     }
     
@@ -140,11 +171,60 @@ class IntakeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Update notification settings
+  Future<void> updateNotificationSettings({
+    bool? enabled,
+    int? startHour,
+    int? endHour,
+    int? interval,
+  }) async {
+    if (enabled != null) _notificationsEnabled = enabled;
+    if (startHour != null) _reminderStartHour = startHour;
+    if (endHour != null) _reminderEndHour = endHour;
+    if (interval != null) _reminderInterval = interval;
+    
+    await _saveData();
+    await _setupReminders();
+    notifyListeners();
+  }
+
+  // Set up reminders based on current settings
+  Future<void> _setupReminders() async {
+    if (!_notificationsEnabled) {
+      await _notificationService.cancelAllReminders();
+      return;
+    }
+
+    // Create reminder times based on interval
+    List<Map<String, int>> reminderTimes = [];
+    for (int hour = _reminderStartHour; hour <= _reminderEndHour; hour += _reminderInterval) {
+      reminderTimes.add({'hour': hour, 'minute': 0});
+    }
+
+    await _notificationService.scheduleMultipleReminders(reminderTimes);
+  }
+
+  // Test notification
+  Future<void> testNotification() async {
+    await _notificationService.testNotification();
+  }
+
+  // Show progress notification
+  Future<void> showProgressNotification() async {
+    await _notificationService.showProgressNotification(todayIntake, _dailyTarget);
+  }
+
   // Clear all data
   void clearAllData() {
     _entries.clear();
+    _goalAchievedToday = false;
     _saveData();
     notifyListeners();
+  }
+
+  // Reset daily goal achieved flag (call this at start of new day)
+  void resetDailyFlags() {
+    _goalAchievedToday = false;
   }
 
   // Get statistics
@@ -156,6 +236,8 @@ class IntakeProvider with ChangeNotifier {
         'averageDaily': 0.0,
         'bestDay': 0.0,
         'streak': 0,
+        'goalsAchieved': 0,
+        'totalEntries': 0,
       };
     }
 
@@ -190,12 +272,22 @@ class IntakeProvider with ChangeNotifier {
       }
     }
 
+    // Calculate goals achieved
+    int goalsAchieved = 0;
+    for (final dateKey in dailyIntakes.keys) {
+      if (dailyIntakes[dateKey]! >= _dailyTarget) {
+        goalsAchieved++;
+      }
+    }
+
     return {
       'totalDays': totalDays,
       'totalIntake': totalIntake,
       'averageDaily': totalIntake / totalDays,
       'bestDay': bestDay,
       'streak': streak,
+      'goalsAchieved': goalsAchieved,
+      'totalEntries': _entries.length,
     };
   }
 
@@ -224,6 +316,18 @@ class IntakeProvider with ChangeNotifier {
       
       // Save daily target
       await prefs.setDouble('daily_target', _dailyTarget);
+      
+      // Save notification settings
+      await prefs.setBool('notifications_enabled', _notificationsEnabled);
+      await prefs.setInt('reminder_start_hour', _reminderStartHour);
+      await prefs.setInt('reminder_end_hour', _reminderEndHour);
+      await prefs.setInt('reminder_interval', _reminderInterval);
+      
+      // Save daily flags
+      await prefs.setBool('goal_achieved_today', _goalAchievedToday);
+      await prefs.setString('last_save_date', DateTime.now().toIso8601String());
+      
+      print('Data saved successfully');
     } catch (e) {
       print('Error saving data: $e');
     }
@@ -245,6 +349,30 @@ class IntakeProvider with ChangeNotifier {
       
       // Load daily target
       _dailyTarget = prefs.getDouble('daily_target') ?? 2000.0;
+      
+      // Load notification settings
+      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+      _reminderStartHour = prefs.getInt('reminder_start_hour') ?? 8;
+      _reminderEndHour = prefs.getInt('reminder_end_hour') ?? 22;
+      _reminderInterval = prefs.getInt('reminder_interval') ?? 2;
+      
+      // Load daily flags and check if it's a new day
+      final lastSaveDate = prefs.getString('last_save_date');
+      if (lastSaveDate != null) {
+        final lastSave = DateTime.parse(lastSaveDate);
+        final today = DateTime.now();
+        
+        // If it's a new day, reset daily flags
+        if (lastSave.day != today.day || 
+            lastSave.month != today.month || 
+            lastSave.year != today.year) {
+          _goalAchievedToday = false;
+        } else {
+          _goalAchievedToday = prefs.getBool('goal_achieved_today') ?? false;
+        }
+      }
+      
+      print('Data loaded successfully: ${_entries.length} entries');
     } catch (e) {
       print('Error loading data: $e');
     }

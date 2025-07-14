@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:provider/provider.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:water_intake/providers/intake_provider.dart';
-import 'package:water_intake/screens/home_screen.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -19,45 +16,57 @@ class NotificationService {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    // Initialize timezone
-    tz.initializeTimeZones();
+    try {
+      // Initialize timezone
+      tz.initializeTimeZones();
 
-    // Request permissions
-    await _requestPermissions();
+      // Request permissions
+      await _requestPermissions();
 
-    // Initialize plugin
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
+      // Initialize plugin
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const iosSettings = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
 
-    const settings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
+      const settings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
 
-    await _notifications.initialize(
-      settings,
-      onDidReceiveNotificationResponse: _onNotificationTapped,
-    );
+      await _notifications.initialize(
+        settings,
+        onDidReceiveNotificationResponse: _onNotificationTapped,
+      );
 
-    _initialized = true;
+      _initialized = true;
+      print('Notifications initialized successfully');
+    } catch (e) {
+      print('Error initializing notifications: $e');
+    }
   }
 
   // Request notification permissions
   Future<void> _requestPermissions() async {
-    // Request notification permission
-    final status = await Permission.notification.request();
-    
-    if (status.isDenied) {
-      print('Notification permission denied');
-    }
+    try {
+      // Request notification permission
+      final status = await Permission.notification.request();
+      
+      if (status.isDenied) {
+        print('Notification permission denied');
+      } else if (status.isGranted) {
+        print('Notification permission granted');
+      }
 
-    // For Android 13+, request post notifications permission
-    if (await Permission.notification.isPermanentlyDenied) {
-      await openAppSettings();
+      // For Android 13+, request post notifications permission
+      if (status.isPermanentlyDenied) {
+        print('Notification permission permanently denied');
+        await openAppSettings();
+      }
+    } catch (e) {
+      print('Error requesting permissions: $e');
     }
   }
 
@@ -74,51 +83,17 @@ class NotificationService {
     String title = 'Hydration Reminder',
     String body = 'Time to drink some water! 💧',
   }) async {
-    await _notifications.zonedSchedule(
-      0, // Notification ID
-      title,
-      body,
-      _nextInstanceOfTime(hour, minute),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'hydration_reminder',
-          'Hydration Reminders',
-          channelDescription: 'Daily reminders to drink water',
-          importance: Importance.high,
-          priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
-        ),
-        iOS: DarwinNotificationDetails(
-          sound: 'default.wav',
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      //uiLocalNotificationDateInterpretation:
-          //UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
-  }
-
-  // Schedule multiple reminders throughout the day
-  Future<void> scheduleMultipleReminders(List<Map<String, int>> times) async {
-    // Cancel existing reminders
-    await cancelAllReminders();
-
-    for (int i = 0; i < times.length; i++) {
-      final time = times[i];
+    try {
       await _notifications.zonedSchedule(
-        i, // Unique ID for each reminder
-        'Hydration Reminder',
-        'Don\'t forget to drink water! 💧',
-        _nextInstanceOfTime(time['hour']!, time['minute']!),
+        0, // Notification ID
+        title,
+        body,
+        _nextInstanceOfTime(hour, minute),
         const NotificationDetails(
           android: AndroidNotificationDetails(
             'hydration_reminder',
             'Hydration Reminders',
-            channelDescription: 'Regular reminders to drink water',
+            channelDescription: 'Daily reminders to drink water',
             importance: Importance.high,
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
@@ -131,11 +106,69 @@ class NotificationService {
           ),
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        //uiLocalNotificationDateInterpretation:
-            //UILocalNotificationDateInterpretation.absoluteTime,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
       );
+      print('Daily reminder scheduled for $hour:$minute');
+    } catch (e) {
+      print('Error scheduling daily reminder: $e');
     }
+  }
+
+  // Schedule multiple reminders throughout the day
+  Future<void> scheduleMultipleReminders(List<Map<String, int>> times) async {
+    try {
+      // Cancel existing reminders
+      await cancelAllReminders();
+
+      for (int i = 0; i < times.length; i++) {
+        final time = times[i];
+        await _notifications.zonedSchedule(
+          i, // Unique ID for each reminder
+          'Hydration Reminder',
+          'Don\'t forget to drink water! 💧',
+          _nextInstanceOfTime(time['hour']!, time['minute']!),
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'hydration_reminder',
+              'Hydration Reminders',
+              channelDescription: 'Regular reminders to drink water',
+              importance: Importance.high,
+              priority: Priority.high,
+              icon: '@mipmap/ic_launcher',
+            ),
+            iOS: DarwinNotificationDetails(
+              sound: 'default.wav',
+              presentAlert: true,
+              presentBadge: true,
+              presentSound: true,
+            ),
+          ),
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+      }
+      print('Multiple reminders scheduled: ${times.length} reminders');
+    } catch (e) {
+      print('Error scheduling multiple reminders: $e');
+    }
+  }
+
+  // Schedule hourly reminders during active hours
+  Future<void> scheduleHourlyReminders({
+    int startHour = 8,
+    int endHour = 22,
+  }) async {
+    List<Map<String, int>> times = [];
+    
+    for (int hour = startHour; hour <= endHour; hour++) {
+      times.add({'hour': hour, 'minute': 0});
+    }
+    
+    await scheduleMultipleReminders(times);
   }
 
   // Show immediate notification
@@ -144,40 +177,74 @@ class NotificationService {
     required String body,
     String? payload,
   }) async {
-    const notificationDetails = NotificationDetails(
-      android: AndroidNotificationDetails(
-        'water_intake',
-        'Water Intake',
-        channelDescription: 'Water intake notifications',
-        importance: Importance.high,
-        priority: Priority.high,
-        icon: '@mipmap/ic_launcher',
-      ),
-      iOS: DarwinNotificationDetails(
-        sound: 'default.wav',
-        presentAlert: true,
-        presentBadge: true,
-        presentSound: true,
-      ),
-    );
+    try {
+      const notificationDetails = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'water_intake',
+          'Water Intake',
+          channelDescription: 'Water intake notifications',
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+        iOS: DarwinNotificationDetails(
+          sound: 'default.wav',
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      );
 
-    await _notifications.show(
-      DateTime.now().millisecondsSinceEpoch.remainder(100000),
-      title,
-      body,
-      notificationDetails,
-      payload: payload,
+      await _notifications.show(
+        DateTime.now().millisecondsSinceEpoch.remainder(100000),
+        title,
+        body,
+        notificationDetails,
+        payload: payload,
+      );
+      print('Notification shown: $title');
+    } catch (e) {
+      print('Error showing notification: $e');
+    }
+  }
+
+  // Show goal achievement notification
+  Future<void> showGoalAchievedNotification(double intake, double goal) async {
+    await showNotification(
+      title: '🎉 Goal Achieved!',
+      body: 'Great job! You\'ve reached your daily water intake goal of ${goal.toStringAsFixed(0)} ml!',
+      payload: 'goal_achieved',
+    );
+  }
+
+  // Show progress notification
+  Future<void> showProgressNotification(double intake, double goal) async {
+    final percentage = (intake / goal * 100).toStringAsFixed(0);
+    await showNotification(
+      title: 'Water Intake Progress',
+      body: 'You\'ve consumed ${intake.toStringAsFixed(0)} ml today ($percentage% of your goal)',
+      payload: 'progress_update',
     );
   }
 
   // Cancel all reminders
   Future<void> cancelAllReminders() async {
-    await _notifications.cancelAll();
+    try {
+      await _notifications.cancelAll();
+      print('All reminders cancelled');
+    } catch (e) {
+      print('Error cancelling reminders: $e');
+    }
   }
 
   // Cancel specific reminder
   Future<void> cancelReminder(int id) async {
-    await _notifications.cancel(id);
+    try {
+      await _notifications.cancel(id);
+      print('Reminder $id cancelled');
+    } catch (e) {
+      print('Error cancelling reminder $id: $e');
+    }
   }
 
   // Get next instance of specified time
@@ -201,32 +268,30 @@ class NotificationService {
 
   // Check if notifications are enabled
   Future<bool> areNotificationsEnabled() async {
-    final status = await Permission.notification.status;
-    return status.isGranted;
+    try {
+      final status = await Permission.notification.status;
+      return status.isGranted;
+    } catch (e) {
+      print('Error checking notification status: $e');
+      return false;
+    }
   }
 
   // Get pending notifications
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    return await _notifications.pendingNotificationRequests();
+    try {
+      return await _notifications.pendingNotificationRequests();
+    } catch (e) {
+      print('Error getting pending notifications: $e');
+      return [];
+    }
   }
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => IntakeProvider(),
-      child: MaterialApp(
-        title: 'Water Intake Logger',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: HomeScreen(),
-        debugShowCheckedModeBanner: false,
-      ),
+  // Test notification
+  Future<void> testNotification() async {
+    await showNotification(
+      title: 'Test Notification',
+      body: 'This is a test notification to verify everything is working!',
     );
   }
 }
