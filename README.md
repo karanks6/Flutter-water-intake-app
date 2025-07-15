@@ -8,4 +8,4 @@ Water intake remainder app.<br> Water Intake Logger is your personal hydration a
 <li>View Progress: Track your daily and weekly intake with visual charts and history logs.
 <li>Edit Past Entries: Forgot to log a glass? No problem—update your intake anytime.
 <li>Reminders: Get smart notifications to stay on track and avoid dehydration.
-</ul>
+</ul> 
