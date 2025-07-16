@@ -128,6 +128,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       });
     }
   }
+  
 
   void _editEntry(BuildContext context, dynamic entry) {
     Navigator.push(

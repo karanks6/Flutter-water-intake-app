@@ -132,6 +132,7 @@ class HomeScreen extends StatelessWidget {
                 
                 SizedBox(height: 26),
                 
+                
                 // Recent Entries
                 Text(
                   'Recent Entries',
