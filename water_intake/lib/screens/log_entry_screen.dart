@@ -75,6 +75,7 @@ class _LogEntryScreenState extends State<LogEntryScreen> {
               
               SizedBox(height: 16),
               
+              
               // Quick Amount Buttons
               Text(
                 'Quick Amounts',
