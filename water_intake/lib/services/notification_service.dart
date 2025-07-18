@@ -146,8 +146,10 @@ class NotificationService {
             ),
           ),
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+
          // uiLocalNotificationDateInterpretation:
               //UILocalNotificationDateInterpretation.absoluteTime,
+              
           matchDateTimeComponents: DateTimeComponents.time,
         );
       }
@@ -287,7 +289,7 @@ class NotificationService {
     }
   }
 
-  
+
   // Test notification
   Future<void> testNotification() async {
     await showNotification(
