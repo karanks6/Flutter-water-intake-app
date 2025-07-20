@@ -139,6 +139,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
+
   void _deleteEntry(BuildContext context, dynamic entry) {
     showDialog(
       context: context,
