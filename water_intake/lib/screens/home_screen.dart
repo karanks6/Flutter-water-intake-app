@@ -107,6 +107,7 @@ class HomeScreen extends StatelessWidget {
                   'Quick Add',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
+
                 SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -131,7 +132,6 @@ class HomeScreen extends StatelessWidget {
                 ),
                 
                 SizedBox(height: 26),
-                
                 
                 // Recent Entries
                 Text(
