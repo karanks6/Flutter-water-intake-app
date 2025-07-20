@@ -5,9 +5,7 @@ import '../models/intake_entry.dart';
 
 class LogEntryScreen extends StatefulWidget {
   final IntakeEntry? entry;
-
   const LogEntryScreen({super.key, this.entry});
-
   @override
   _LogEntryScreenState createState() => _LogEntryScreenState();
 }
@@ -74,7 +72,6 @@ class _LogEntryScreenState extends State<LogEntryScreen> {
               ),
               
               SizedBox(height: 16),
-              
               
               // Quick Amount Buttons
               Text(
