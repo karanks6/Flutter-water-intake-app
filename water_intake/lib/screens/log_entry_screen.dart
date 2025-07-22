@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/intake_provider.dart';
 import '../models/intake_entry.dart';
 
+
 class LogEntryScreen extends StatefulWidget {
   final IntakeEntry? entry;
   const LogEntryScreen({super.key, this.entry});
@@ -10,12 +11,14 @@ class LogEntryScreen extends StatefulWidget {
   _LogEntryScreenState createState() => _LogEntryScreenState();
 }
 
+
 class _LogEntryScreenState extends State<LogEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
+
 
   @override
   void initState() {
@@ -28,12 +31,14 @@ class _LogEntryScreenState extends State<LogEntryScreen> {
     }
   }
 
+
   @override
   void dispose() {
     _amountController.dispose();
     _noteController.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
