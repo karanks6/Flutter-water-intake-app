@@ -44,6 +44,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               
+
               // Daily Summary
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16),
@@ -91,8 +92,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               
+              
               SizedBox(height: 16),
               
+
               // Entries List
               Expanded(
                 child: ListView.builder(
