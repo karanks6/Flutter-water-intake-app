@@ -241,9 +241,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
-
-
+  
   Widget _buildStatisticsCard(IntakeProvider intakeProvider) {
     final stats = intakeProvider.getStatistics();
     return Card(
