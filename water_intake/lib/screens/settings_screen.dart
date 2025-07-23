@@ -273,8 +273,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-
-
   Widget _buildStatItem(String label, String value, IconData icon) {
     return Column(
       children: [
