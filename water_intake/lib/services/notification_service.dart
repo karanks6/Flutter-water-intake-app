@@ -4,6 +4,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 
+
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
@@ -121,7 +122,6 @@ class NotificationService {
     try {
       // Cancel existing reminders
       await cancelAllReminders();
-
       for (int i = 0; i < times.length; i++) {
         final time = times[i];
         await _notifications.zonedSchedule(
@@ -280,8 +280,6 @@ class NotificationService {
   }
 
 
-
-
   // Get pending notifications
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     try {
@@ -291,7 +289,6 @@ class NotificationService {
       return [];
     }
   }
-
 
   // Test notification
   Future<void> testNotification() async {
