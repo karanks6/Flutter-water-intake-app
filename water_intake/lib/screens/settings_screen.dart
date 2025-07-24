@@ -339,7 +339,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-
   Widget _buildTargetChip(IntakeProvider intakeProvider, double target, String label) {
     final isSelected = intakeProvider.dailyTarget == target;
     return FilterChip(
@@ -352,7 +351,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       selectedColor: Colors.blue[100],
     );
   }
-
 
   Future<void> _selectStartTime(IntakeProvider intakeProvider) async {
     final TimeOfDay? picked = await showTimePicker(
