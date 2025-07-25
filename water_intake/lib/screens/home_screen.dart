@@ -6,7 +6,6 @@ import '../widgets/progress_chart.dart';
 import 'log_entry_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
-
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -100,6 +99,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 
+
                 SizedBox(height: 16),
                 
                 // Quick Add Buttons
@@ -107,6 +107,7 @@ class HomeScreen extends StatelessWidget {
                   'Quick Add',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
+
 
                 SizedBox(height: 8),
                 Row(
@@ -120,6 +121,7 @@ class HomeScreen extends StatelessWidget {
                 
                 SizedBox(height: 16),
                 
+
                 // Weekly Chart
                 Text(
                   'Weekly Progress',
@@ -131,7 +133,9 @@ class HomeScreen extends StatelessWidget {
                   child: ProgressChart(),
                 ),
                 
+
                 SizedBox(height: 26),
+                
                 
                 // Recent Entries
                 Text(
