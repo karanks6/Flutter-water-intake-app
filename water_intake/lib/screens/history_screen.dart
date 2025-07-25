@@ -4,6 +4,7 @@ import '../providers/intake_provider.dart';
 import '../widgets/intake_card.dart';
 import 'log_entry_screen.dart';
 
+
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
@@ -11,8 +12,10 @@ class HistoryScreen extends StatefulWidget {
   _HistoryScreenState createState() => _HistoryScreenState();
 }
 
+
 class _HistoryScreenState extends State<HistoryScreen> {
   DateTime _selectedDate = DateTime.now();
+
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +47,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               
+
               // Daily Summary
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16),
@@ -91,8 +95,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               
+
               SizedBox(height: 16),
               
+
               // Entries List
               Expanded(
                 child: ListView.builder(
@@ -115,6 +121,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
+
   void _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -129,6 +136,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
+
   void _editEntry(BuildContext context, dynamic entry) {
     Navigator.push(
       context,
@@ -137,6 +145,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
     );
   }
+
 
   void _deleteEntry(BuildContext context, dynamic entry) {
     showDialog(
