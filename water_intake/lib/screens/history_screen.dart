@@ -95,10 +95,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               
-
               SizedBox(height: 16),
               
-
               // Entries List
               Expanded(
                 child: ListView.builder(
