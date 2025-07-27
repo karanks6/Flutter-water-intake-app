@@ -4,7 +4,6 @@ import '../providers/intake_provider.dart';
 import '../widgets/intake_card.dart';
 import 'log_entry_screen.dart';
 
-
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
@@ -12,10 +11,8 @@ class HistoryScreen extends StatefulWidget {
   _HistoryScreenState createState() => _HistoryScreenState();
 }
 
-
 class _HistoryScreenState extends State<HistoryScreen> {
   DateTime _selectedDate = DateTime.now();
-
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +44,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               
-
               // Daily Summary
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16),
