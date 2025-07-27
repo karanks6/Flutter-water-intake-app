@@ -108,7 +108,6 @@ class HomeScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
 
-
                 SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -121,7 +120,6 @@ class HomeScreen extends StatelessWidget {
                 
                 SizedBox(height: 16),
                 
-
                 // Weekly Chart
                 Text(
                   'Weekly Progress',
@@ -133,7 +131,6 @@ class HomeScreen extends StatelessWidget {
                   child: ProgressChart(),
                 ),
                 
-
                 SizedBox(height: 26),
                 
                 
