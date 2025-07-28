@@ -39,7 +39,6 @@ class _LogEntryScreenState extends State<LogEntryScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
