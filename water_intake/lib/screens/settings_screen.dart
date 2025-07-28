@@ -375,7 +375,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-
   Future<void> _selectEndTime(IntakeProvider intakeProvider) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
