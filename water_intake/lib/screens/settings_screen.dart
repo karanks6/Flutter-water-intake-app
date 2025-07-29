@@ -328,7 +328,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.star_rate),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              // TODO: Implement app rating
+              
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Thank you for your feedback!')),
               );
