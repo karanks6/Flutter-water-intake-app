@@ -115,7 +115,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-
   void _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
