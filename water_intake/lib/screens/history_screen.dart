@@ -129,7 +129,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-
   void _editEntry(BuildContext context, dynamic entry) {
     Navigator.push(
       context,
@@ -138,7 +137,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
     );
   }
-
 
   void _deleteEntry(BuildContext context, dynamic entry) {
     showDialog(
