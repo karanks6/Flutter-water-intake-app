@@ -36,11 +36,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _reminderInterval = intakeProvider.reminderInterval;
   }
 
+
   @override
   void dispose() {
     _targetController.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +88,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+
   Widget _buildSectionHeader(String title, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -104,6 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+
 
   Widget _buildDailyTargetCard(IntakeProvider intakeProvider) {
     return Card(
@@ -161,6 +165,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+
 
   Widget _buildNotificationSettingsCard(IntakeProvider intakeProvider) {
     return Card(
@@ -241,6 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+
   
   Widget _buildStatisticsCard(IntakeProvider intakeProvider) {
     final stats = intakeProvider.getStatistics();
@@ -273,6 +279,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+
   Widget _buildStatItem(String label, String value, IconData icon) {
     return Column(
       children: [
@@ -294,6 +301,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+
   Widget _buildAppManagementCard(IntakeProvider intakeProvider) {
     return Card(
       elevation: 4,
@@ -310,6 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+
 
   Widget _buildAboutCard() {
     return Card(
@@ -338,6 +347,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+
+
 
   Widget _buildTargetChip(IntakeProvider intakeProvider, double target, String label) {
     final isSelected = intakeProvider.dailyTarget == target;
