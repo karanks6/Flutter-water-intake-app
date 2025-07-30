@@ -14,6 +14,7 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   DateTime _selectedDate = DateTime.now();
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,6 +45,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
               
+
               // Daily Summary
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 16),
@@ -115,6 +117,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
+
   void _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -129,6 +132,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
+
   void _editEntry(BuildContext context, dynamic entry) {
     Navigator.push(
       context,
@@ -137,6 +141,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
     );
   }
+
 
   void _deleteEntry(BuildContext context, dynamic entry) {
     showDialog(
