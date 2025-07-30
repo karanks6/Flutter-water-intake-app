@@ -132,6 +132,7 @@ class HomeScreen extends StatelessWidget {
                 
                 SizedBox(height: 26),
                 
+
                 // Recent Entries
                 Text(
                   'Recent Entries',
@@ -154,6 +155,7 @@ class HomeScreen extends StatelessWidget {
                   },
                 ),
                 
+
                 if (intakeProvider.todayEntries.length > 3)
                   TextButton(
                     onPressed: () {
@@ -217,6 +219,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+
   Widget _buildQuickAddButton(BuildContext context, double amount, String label, IconData icon) {
     return Expanded(
       child: Container(
@@ -260,6 +263,7 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+  
 
   void _deleteEntry(BuildContext context, dynamic entry) {
     showDialog(
