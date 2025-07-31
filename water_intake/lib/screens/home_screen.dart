@@ -255,6 +255,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+
   void _editEntry(BuildContext context, dynamic entry) {
     Navigator.push(
       context,

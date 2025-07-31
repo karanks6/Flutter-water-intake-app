@@ -153,6 +153,7 @@ class _LogEntryScreenState extends State<LogEntryScreen> {
     );
   }
 
+
   Widget _buildQuickAmountChip(double amount) {
     return ActionChip(
       label: Text('${amount.toStringAsFixed(0)} ml'),
@@ -161,6 +162,7 @@ class _LogEntryScreenState extends State<LogEntryScreen> {
       },
     );
   }
+
 
   void _selectDate() async {
     final DateTime? picked = await showDatePicker(
