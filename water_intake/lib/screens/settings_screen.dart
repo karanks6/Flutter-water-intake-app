@@ -301,7 +301,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-
   Widget _buildAppManagementCard(IntakeProvider intakeProvider) {
     return Card(
       elevation: 4,
@@ -318,7 +317,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
 
   Widget _buildAboutCard() {
     return Card(
@@ -347,8 +345,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
-
 
   Widget _buildTargetChip(IntakeProvider intakeProvider, double target, String label) {
     final isSelected = intakeProvider.dailyTarget == target;
