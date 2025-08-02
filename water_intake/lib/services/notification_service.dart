@@ -47,6 +47,7 @@ class NotificationService {
       print('Error initializing notifications: $e');
     }
   }
+  
 
   // Request notification permissions
   Future<void> _requestPermissions() async {
@@ -60,6 +61,7 @@ class NotificationService {
         print('Notification permission granted');
       }
 
+
       // For Android 13+, request post notifications permission
       if (status.isPermanentlyDenied) {
         print('Notification permission permanently denied');
@@ -70,11 +72,13 @@ class NotificationService {
     }
   }
 
+
   // Handle notification tap
   void _onNotificationTapped(NotificationResponse response) {
     print('Notification tapped: ${response.payload}');
     // Handle notification tap - could navigate to specific screen
   }
+
 
   // Schedule daily hydration reminder
   Future<void> scheduleDailyReminder({
@@ -115,6 +119,7 @@ class NotificationService {
       print('Error scheduling daily reminder: $e');
     }
   }
+
 
   // Schedule multiple reminders throughout the day
   Future<void> scheduleMultipleReminders(List<Map<String, int>> times) async {
