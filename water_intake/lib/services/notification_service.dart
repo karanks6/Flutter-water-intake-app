@@ -158,6 +158,7 @@ class NotificationService {
     }
   }
 
+
   // Schedule hourly reminders during active hours
   Future<void> scheduleHourlyReminders({
     int startHour = 8,
@@ -171,6 +172,7 @@ class NotificationService {
     
     await scheduleMultipleReminders(times);
   }
+
 
   // Show immediate notification
   Future<void> showNotification({
@@ -209,6 +211,7 @@ class NotificationService {
     }
   }
 
+
   // Show goal achievement notification
   Future<void> showGoalAchievedNotification(double intake, double goal) async {
     await showNotification(
@@ -217,6 +220,7 @@ class NotificationService {
       payload: 'goal_achieved',
     );
   }
+
 
   // Show progress notification
   Future<void> showProgressNotification(double intake, double goal) async {
@@ -228,6 +232,7 @@ class NotificationService {
     );
   }
 
+
   // Cancel all reminders
   Future<void> cancelAllReminders() async {
     try {
@@ -238,6 +243,7 @@ class NotificationService {
     }
   }
 
+
   // Cancel specific reminder
   Future<void> cancelReminder(int id) async {
     try {
@@ -247,6 +253,7 @@ class NotificationService {
       print('Error cancelling reminder $id: $e');
     }
   }
+
 
   // Get next instance of specified time
   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
