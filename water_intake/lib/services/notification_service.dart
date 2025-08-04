@@ -47,7 +47,6 @@ class NotificationService {
       print('Error initializing notifications: $e');
     }
   }
-  
 
   // Request notification permissions
   Future<void> _requestPermissions() async {
@@ -61,7 +60,6 @@ class NotificationService {
         print('Notification permission granted');
       }
 
-
       // For Android 13+, request post notifications permission
       if (status.isPermanentlyDenied) {
         print('Notification permission permanently denied');
@@ -72,13 +70,11 @@ class NotificationService {
     }
   }
 
-
   // Handle notification tap
   void _onNotificationTapped(NotificationResponse response) {
     print('Notification tapped: ${response.payload}');
     // Handle notification tap - could navigate to specific screen
   }
-
 
   // Schedule daily hydration reminder
   Future<void> scheduleDailyReminder({
@@ -119,7 +115,6 @@ class NotificationService {
       print('Error scheduling daily reminder: $e');
     }
   }
-
 
   // Schedule multiple reminders throughout the day
   Future<void> scheduleMultipleReminders(List<Map<String, int>> times) async {
@@ -163,7 +158,6 @@ class NotificationService {
     }
   }
 
-
   // Schedule hourly reminders during active hours
   Future<void> scheduleHourlyReminders({
     int startHour = 8,
@@ -177,7 +171,6 @@ class NotificationService {
     
     await scheduleMultipleReminders(times);
   }
-
 
   // Show immediate notification
   Future<void> showNotification({
@@ -216,7 +209,6 @@ class NotificationService {
     }
   }
 
-
   // Show goal achievement notification
   Future<void> showGoalAchievedNotification(double intake, double goal) async {
     await showNotification(
@@ -225,7 +217,6 @@ class NotificationService {
       payload: 'goal_achieved',
     );
   }
-
 
   // Show progress notification
   Future<void> showProgressNotification(double intake, double goal) async {
@@ -237,7 +228,6 @@ class NotificationService {
     );
   }
 
-
   // Cancel all reminders
   Future<void> cancelAllReminders() async {
     try {
@@ -248,7 +238,6 @@ class NotificationService {
     }
   }
 
-
   // Cancel specific reminder
   Future<void> cancelReminder(int id) async {
     try {
@@ -258,7 +247,6 @@ class NotificationService {
       print('Error cancelling reminder $id: $e');
     }
   }
-
 
   // Get next instance of specified time
   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
@@ -289,7 +277,6 @@ class NotificationService {
       return false;
     }
   }
-
 
   // Get pending notifications
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
