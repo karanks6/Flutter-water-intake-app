@@ -43,7 +43,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,7 +87,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-
   Widget _buildSectionHeader(String title, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -107,7 +105,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
 
   Widget _buildDailyTargetCard(IntakeProvider intakeProvider) {
     return Card(
@@ -165,7 +162,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
 
   Widget _buildNotificationSettingsCard(IntakeProvider intakeProvider) {
     return Card(
@@ -247,7 +243,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  
   Widget _buildStatisticsCard(IntakeProvider intakeProvider) {
     final stats = intakeProvider.getStatistics();
     return Card(
@@ -278,7 +273,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
 
   Widget _buildStatItem(String label, String value, IconData icon) {
     return Column(
