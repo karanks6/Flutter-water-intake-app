@@ -67,7 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildNotificationSettingsCard(intakeProvider),
               const SizedBox(height: 24),
 
-              // Statistics Section
+              // Statistics Section (need to be changed)
               _buildSectionHeader('Statistics', Icons.analytics),
               _buildStatisticsCard(intakeProvider),
               const SizedBox(height: 24),
