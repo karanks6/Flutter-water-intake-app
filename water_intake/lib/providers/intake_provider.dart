@@ -405,6 +405,7 @@ class IntakeProvider with ChangeNotifier {
         }
       }
       
+      
       print('Data loaded successfully: ${_entries.length} entries');
     } catch (e) {
       print('Error loading data: $e');
