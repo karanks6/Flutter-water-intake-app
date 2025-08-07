@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../models/intake_entry.dart';
 import '../services/notification_service.dart';
 
+
 class IntakeProvider with ChangeNotifier {
   List<IntakeEntry> _entries = [];
   double _dailyTarget = 2000.0; // Default 2L
@@ -404,7 +405,6 @@ class IntakeProvider with ChangeNotifier {
           _goalAchievedToday = prefs.getBool('goal_achieved_today') ?? false;
         }
       }
-      
       
       print('Data loaded successfully: ${_entries.length} entries');
     } catch (e) {
