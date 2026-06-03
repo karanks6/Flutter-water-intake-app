@@ -1,78 +1,114 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'screens/home_screen.dart';
 import 'providers/intake_provider.dart';
+import 'providers/theme_provider.dart';
+import 'screens/splash_screen.dart';
+import 'theme/app_text_styles.dart';
 
 void main() async {
-  // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
-  
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => IntakeProvider(),
-      child: MaterialApp(
-        title: 'Water Intake Logger',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
+  // ── Light theme ──────────────────────────────────────────────────────────
+  static ThemeData get lightTheme => ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
         ),
-        home: AppInitializer(),
-        debugShowCheckedModeBanner: false,
-      ),
-    );
-  }
-}
+        useMaterial3: true,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: const Color(0xFFF3F9FD),
+        cardColor: Colors.white,
+        textTheme: AppTextStyles.textTheme,
+      );
 
-class AppInitializer extends StatefulWidget {
-  @override
-  _AppInitializerState createState() => _AppInitializerState();
-}
-
-class _AppInitializerState extends State<AppInitializer> {
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeApp();
-  }
-
-  Future<void> _initializeApp() async {
-    try {
-      // Initialize the IntakeProvider (loads data and sets up notifications)
-      await Provider.of<IntakeProvider>(context, listen: false).initialize();
-    } catch (e) {
-      print('Error initializing app: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Loading your water intake data...'),
-            ],
-          ),
+  // ── Dark theme ───────────────────────────────────────────────────────────
+  static ThemeData get darkTheme => ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ).copyWith(
+          surface: const Color(0xFF101624),
+          onSurface: Colors.white,
+          primary: const Color(0xFF90CAF9),
+          onPrimary: const Color(0xFF0D1B2E),
+          surfaceContainerHighest: const Color(0xFF1A2336),
+        ),
+        useMaterial3: true,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: const Color(0xFF0A0F1E),
+        cardColor: const Color(0xFF141B2D),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF0D1425),
+          foregroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.black26,
+        ),
+        // Dark text theme: same Inter font, lighter colors
+        textTheme: GoogleFonts.interTextTheme().copyWith(
+          headlineLarge: GoogleFonts.inter(
+              fontSize: 32, fontWeight: FontWeight.w900, color: Colors.white),
+          headlineMedium: GoogleFonts.inter(
+              fontSize: 22, fontWeight: FontWeight.w900,
+              letterSpacing: 2.0, color: Colors.white),
+          headlineSmall: GoogleFonts.inter(
+              fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
+          titleLarge: GoogleFonts.inter(
+              fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+          titleMedium: GoogleFonts.inter(
+              fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+          titleSmall: GoogleFonts.inter(
+              fontSize: 13, fontWeight: FontWeight.w800,
+              color: const Color(0xFFBBDEFB), letterSpacing: 0.4),
+          bodyLarge: GoogleFonts.inter(
+              fontSize: 14, fontWeight: FontWeight.w400, color: Colors.white),
+          bodyMedium: GoogleFonts.inter(
+              fontSize: 12, fontWeight: FontWeight.w500,
+              color: const Color(0xFF90A4AE)),
+          bodySmall: GoogleFonts.inter(
+              fontSize: 11, fontWeight: FontWeight.w500,
+              color: const Color(0xFF78909C)),
+          labelLarge: GoogleFonts.inter(
+              fontSize: 12, fontWeight: FontWeight.w600,
+              color: const Color(0xFFBBDEFB)),
+          labelMedium: GoogleFonts.inter(
+              fontSize: 11, fontWeight: FontWeight.w600,
+              color: const Color(0xFF90A4AE)),
+          labelSmall: GoogleFonts.inter(
+              fontSize: 9, fontWeight: FontWeight.w600,
+              color: const Color(0xFF78909C)),
+        ),
+        dividerColor: const Color(0xFF1E2A3E),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color(0xFF141B2D),
         ),
       );
-    }
-    return HomeScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => IntakeProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          AppTextStyles.isDark = themeProvider.isDark;
+          return MaterialApp(
+            title: 'AQUA LOG',
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: themeProvider.themeMode,
+            home: const SplashScreen(),
+            debugShowCheckedModeBanner: false,
+          );
+        },
+      ),
+    );
   }
 }

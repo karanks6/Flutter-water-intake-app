@@ -188,7 +188,6 @@ class IntakeProvider with ChangeNotifier {
 
   // Add new entry
   void addEntry(double amount, String note, DateTime timestamp) {
-    final previousIntake = todayIntake;
     final wasGoalAchieved = isGoalAchieved;
     
     final entry = IntakeEntry(
