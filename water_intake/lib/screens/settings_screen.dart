@@ -24,7 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _reminderStartMinute = 0;
   int _reminderEndHour = 22;
   int _reminderEndMinute = 0;
-  int _reminderInterval = 2;
+  int _reminderInterval = 120;
   bool _isScrolled = false;
   bool _exactAlarmGranted = true; // optimistic default
 
@@ -488,10 +488,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: pillIconColor,
                 ),
                 dropdownColor: isDark ? const Color(0xFF1E2A3E) : Colors.white,
-                items: [1, 2, 3, 4, 6].map((hour) {
+                items: [30, 60, 120, 180, 240, 360].map((minutes) {
+                  String label;
+                  if (minutes < 60) {
+                    label = '$minutes mins';
+                  } else {
+                    int hours = minutes ~/ 60;
+                    label = '$hours hr${hours > 1 ? "s" : ""}';
+                  }
                   return DropdownMenuItem(
-                    value: hour,
-                    child: Text('$hour hr${hour > 1 ? "s" : ""}'),
+                    value: minutes,
+                    child: Text(label),
                   );
                 }).toList(),
                 onChanged: _notificationsEnabled ? (value) {

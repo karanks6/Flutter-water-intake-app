@@ -11,7 +11,7 @@ class IntakeProvider with ChangeNotifier {
   bool _notificationsEnabled = true;
   int _reminderStartHour = 8;
   int _reminderEndHour = 22;
-  int _reminderInterval = 2; // hours
+  int _reminderInterval = 120; // minutes
   bool _goalAchievedToday = false;
   
   // Add these new properties for minutes support
@@ -51,31 +51,44 @@ class IntakeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Method to calculate current streak correctly
+  // ── Streak calculation ──────────────────────────────────────────────────
+  // Rules:
+  //  • A day counts toward the streak only when intake >= dailyTarget.
+  //  • If TODAY's goal is already met  → include today and walk backwards.
+  //  • If TODAY's goal is NOT yet met  → don't penalise; start from yesterday
+  //    so an in-progress day doesn't wipe a legitimate previous streak.
+  //  • Stop as soon as a day is found with intake < dailyTarget.
   int calculateCurrentStreak() {
     if (_entries.isEmpty) return 0;
-    
-    final now = DateTime.now();
+
+    final today = _dateOnly(DateTime.now());
+    final todayIntakeVal = getDailyIntake(today);
+
+    // Decide where to start walking
+    // If today's goal is met, include today (offset 0); otherwise start from yesterday (offset 1).
+    int startOffset = (todayIntakeVal >= _dailyTarget) ? 0 : 1;
+
     int streak = 0;
-    
-    // Check consecutive days starting from today
-    for (int i = 0; i < 365; i++) {
-      final date = now.subtract(Duration(days: i));
-      final intake = getDailyIntake(date);
-      
+    for (int i = startOffset; i < 366; i++) {
+      final day = today.subtract(Duration(days: i));
+      final intake = getDailyIntake(day);
       if (intake >= _dailyTarget) {
         streak++;
       } else {
-        // If it's today and no intake yet, don't break the streak
-        if (i == 0 && intake == 0) {
-          continue;
-        }
-        break;
+        break; // First missed day — stop counting
       }
     }
-    
+
     return streak;
   }
+
+  /// Convenience getter used by UI widgets.
+  int get currentStreak => calculateCurrentStreak();
+
+  /// Strips time from a DateTime so comparisons are date-only.
+  DateTime _dateOnly(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+
+
 
   // Get statistics with corrected streak calculation
   Map<String, dynamic> getStatistics() {
@@ -138,16 +151,14 @@ class IntakeProvider with ChangeNotifier {
       return;
     }
 
-    // Create reminder times based on interval
-    List<Map<String, int>> reminderTimes = [];
-    for (int hour = _reminderStartHour; hour <= _reminderEndHour; hour += _reminderInterval) {
-      reminderTimes.add({
-        'hour': hour, 
-        'minute': hour == _reminderStartHour ? _reminderStartMinute : 0
-      });
-    }
-
-    await _notificationService.scheduleMultipleReminders(reminderTimes);
+    // Build the list of reminder times from start/end hours and interval
+    await _notificationService.scheduleHourlyReminders(
+      startHour: _reminderStartHour,
+      endHour: _reminderEndHour,
+      intervalMinutes: _reminderInterval,
+      startMinute: _reminderStartMinute,
+      endMinute: _reminderEndMinute,
+    );
   }
 
   // Get today's entries
@@ -178,7 +189,10 @@ class IntakeProvider with ChangeNotifier {
   Future<void> initialize() async {
     try {
       await _loadData();
+      // Always initialize the notification service (idempotent internally)
       await _notificationService.initialize();
+      // Always reschedule reminders on cold start — ensures reminders
+      // survive app updates, device reboots, and OS-level alarm cancellations.
       await _setupReminders();
       print('IntakeProvider initialized successfully');
     } catch (e) {
@@ -387,7 +401,15 @@ class IntakeProvider with ChangeNotifier {
       _reminderStartMinute = prefs.getInt('reminder_start_minute') ?? 0;
       _reminderEndHour = prefs.getInt('reminder_end_hour') ?? 22;
       _reminderEndMinute = prefs.getInt('reminder_end_minute') ?? 0;
-      _reminderInterval = prefs.getInt('reminder_interval') ?? 2;
+      
+      int? savedInterval = prefs.getInt('reminder_interval');
+      if (savedInterval != null && savedInterval < 24) {
+        // Migrate from hours to minutes
+        _reminderInterval = savedInterval * 60;
+        prefs.setInt('reminder_interval', _reminderInterval);
+      } else {
+        _reminderInterval = savedInterval ?? 120;
+      }
       
       // Load daily flags and check if it's a new day
       final lastSaveDate = prefs.getString('last_save_date');

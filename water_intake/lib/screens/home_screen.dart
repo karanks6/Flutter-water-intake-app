@@ -77,7 +77,7 @@ class HomeScreen extends StatelessWidget {
                               ],
                             ),
                             StreakFlameWidget(
-                              streakCount: intakeProvider.calculateCurrentStreak(),
+                              streakCount: intakeProvider.currentStreak,
                               size: 40,
                             ),
                           ],
