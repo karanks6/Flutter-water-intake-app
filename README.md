@@ -182,3 +182,6 @@ When you are ready to bundle the app for testing or production deployment, compi
     Android 13 introduced runtime permissions for notifications. Upon initial launch, the app will request permission. If denied, reminders will not show. Enable them manually under **App Info > Notifications** in device settings.
 *   **Timezone Sync**:
     If scheduling alerts fail, ensure that your simulator/device has correct system time, region, and network sync settings.
+
+
+    
